@@ -1,0 +1,340 @@
+// SPDX-License-Identifier: Apache-2.0
+// Vaultline: Private escrow deposit verification on Midnight.
+// The vault is the proof, the line is the limit.
+
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+export enum EscrowStatus { active, released, disputed, resolved, expired }
+
+export struct EscrowTerms {
+  amount: Uint<64>;
+  currency: Uint<16>;
+  deadline: Uint<32>;
+  minThreshold: Uint<64>;
+  description: Bytes<32>;
+}
+
+export struct EscrowRecord {
+  depositor: Bytes<32>;
+  beneficiary: Bytes<32>;
+  commitment: Bytes<32>;
+  status: EscrowStatus;
+  createdAt: Uint<32>;
+  deadline: Uint<32>;
+  arbiter: Bytes<32>;
+  minThreshold: Uint<64>;
+}
+
+struct EscrowCommitmentInput {
+  domain: Bytes<32>;
+  terms: EscrowTerms;
+  depositor: Bytes<32>;
+  salt: Bytes<32>;
+}
+
+struct DepositCommitmentInput {
+  domain: Bytes<32>;
+  depositor: Bytes<32>;
+  amount: Uint<64>;
+  currency: Uint<16>;
+  salt: Bytes<32>;
+}
+
+// ---------------------------------------------------------------------------
+// Ledger State
+// ---------------------------------------------------------------------------
+
+export sealed ledger admin: Bytes<32>;
+export ledger certifiedCustodians: Set<Bytes<32>>;
+export ledger attestedDeposits: Map<Bytes<32>, Bytes<32>>;
+export ledger escrows: Map<Bytes<32>, EscrowRecord>;
+export ledger escrowCount: Counter;
+export ledger nullifiers: Map<Bytes<32>, Boolean>;
+export ledger disputes: Map<Bytes<32>, Bytes<32>>;
+
+// ---------------------------------------------------------------------------
+// Witnesses (Private Inputs)
+// ---------------------------------------------------------------------------
+
+witness privateKey(): Bytes<32>;
+witness escrowTerms(): EscrowTerms;
+witness escrowSalt(): Bytes<32>;
+witness depositSalt(): Bytes<32>;
+
+// ---------------------------------------------------------------------------
+// Pure Circuits
+// ---------------------------------------------------------------------------
+
+export pure circuit depositorKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "vaultline:depositor:v1"), sk]);
+}
+
+export pure circuit arbiterKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "vaultline:arbiter:v1"), sk]);
+}
+
+export pure circuit beneficiaryKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "vaultline:beneficiary:v1"), sk]);
+}
+
+export pure circuit custodianKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "vaultline:custodian:v1"), sk]);
+}
+
+export pure circuit escrowCommitment(terms: EscrowTerms, depositor: Bytes<32>, salt: Bytes<32>): Bytes<32> {
+  return persistentHash<EscrowCommitmentInput>(EscrowCommitmentInput {
+    domain: pad(32, "vaultline:escrow:v1"),
+    terms: terms,
+    depositor: depositor,
+    salt: salt
+  });
+}
+
+export pure circuit depositCommitment(
+  depositor: Bytes<32>,
+  amount: Uint<64>,
+  currency: Uint<16>,
+  salt: Bytes<32>
+): Bytes<32> {
+  return persistentHash<DepositCommitmentInput>(DepositCommitmentInput {
+    domain: pad(32, "vaultline:deposit:v1"),
+    depositor: depositor,
+    amount: amount,
+    currency: currency,
+    salt: salt
+  });
+}
+
+export pure circuit escrowNullifier(salt: Bytes<32>, escrowId: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "vaultline:settle-nullifier:v2"), escrowId, salt]);
+}
+
+export pure circuit releaseToken(commitment: Bytes<32>, recipient: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "vaultline:release-token:v1"), commitment, recipient]);
+}
+
+export pure circuit disputeHashOf(reason: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "vaultline:dispute:v1"), reason]);
+}
+
+export pure circuit meetsThreshold(amount: Uint<64>, minThreshold: Uint<64>): Boolean {
+  return amount >= minThreshold;
+}
+
+// ---------------------------------------------------------------------------
+// State Transition Circuits
+// ---------------------------------------------------------------------------
+
+constructor() {
+  admin = disclose(arbiterKey(privateKey()));
+}
+
+export circuit registerCustodian(custodianPublic: Bytes<32>): [] {
+  const pKey = privateKey();
+  assert(disclose(arbiterKey(pKey) == admin), "Only admin can register custodian");
+  certifiedCustodians.insert(disclose(custodianPublic));
+}
+
+export circuit attestDeposit(depositorPublic: Bytes<32>, commitment: Bytes<32>): [] {
+  const pKey = privateKey();
+  const caller = disclose(custodianKey(pKey));
+  assert(certifiedCustodians.member(caller), "Only certified custodian can attest deposit");
+  attestedDeposits.insert(disclose(depositorPublic), disclose(commitment));
+}
+
+export circuit createEscrow(
+  id: Bytes<32>,
+  depositorPublic: Bytes<32>,
+  beneficiaryPublic: Bytes<32>,
+  arbiterPublic: Bytes<32>,
+  timestamp: Uint<32>
+): [] {
+  const escrowId = disclose(id);
+  assert(!escrows.member(escrowId), "Escrow already exists");
+
+  const pKey = privateKey();
+  assert(disclose(depositorKey(pKey) == depositorPublic), "Invalid depositor key");
+
+  const terms = escrowTerms();
+  const salt = escrowSalt();
+
+  assert(disclose(meetsThreshold(terms.amount, terms.minThreshold)), "Threshold verification failed");
+  assert(disclose(terms.deadline > timestamp), "Invalid deadline");
+
+  // If a custodian attested deposit exists, verify commitment in zero knowledge
+  const depPub = disclose(depositorPublic);
+  if (attestedDeposits.member(depPub)) {
+    const dSalt = depositSalt();
+    const expectedCommit = depositCommitment(depositorPublic, terms.amount, terms.currency, dSalt);
+    assert(disclose(expectedCommit == attestedDeposits.lookup(depPub)), "Custodian deposit commitment mismatch");
+  }
+
+  const commitment = disclose(escrowCommitment(terms, depositorPublic, salt));
+
+  const record = EscrowRecord {
+    depositor: depPub,
+    beneficiary: disclose(beneficiaryPublic),
+    commitment: commitment,
+    status: EscrowStatus.active,
+    createdAt: disclose(timestamp),
+    deadline: disclose(terms.deadline),
+    arbiter: disclose(arbiterPublic),
+    minThreshold: disclose(terms.minThreshold)
+  };
+
+  escrows.insert(escrowId, record);
+  escrowCount.increment(1);
+}
+
+export circuit verifyEscrow(id: Bytes<32>): Boolean {
+  const escrowId = disclose(id);
+  assert(escrows.member(escrowId), "Escrow not found");
+  const record = escrows.lookup(escrowId);
+  assert(record.status == EscrowStatus.active, "Escrow is not active");
+  return true;
+}
+
+export circuit releaseEscrow(id: Bytes<32>): Bytes<32> {
+  const escrowId = disclose(id);
+  assert(escrows.member(escrowId), "Escrow not found");
+  const record = escrows.lookup(escrowId);
+  assert(record.status == EscrowStatus.active, "Escrow not active");
+
+  const terms = escrowTerms();
+  const salt = escrowSalt();
+  const computedCommit = escrowCommitment(terms, record.depositor, salt);
+  assert(disclose(computedCommit == record.commitment), "Commitment mismatch");
+
+  const pKey = privateKey();
+  const bKey = beneficiaryKey(pKey);
+  const aKey = arbiterKey(pKey);
+  assert(disclose(bKey == record.beneficiary || aKey == record.arbiter), "Not authorized to release");
+
+  const nullifier = disclose(escrowNullifier(salt, escrowId));
+  assert(!nullifiers.member(nullifier), "Escrow already settled");
+
+  const token = disclose(releaseToken(record.commitment, record.beneficiary));
+
+  const updatedRecord = EscrowRecord {
+    depositor: record.depositor,
+    beneficiary: record.beneficiary,
+    commitment: record.commitment,
+    status: EscrowStatus.released,
+    createdAt: record.createdAt,
+    deadline: record.deadline,
+    arbiter: record.arbiter,
+    minThreshold: record.minThreshold
+  };
+
+  escrows.insert(escrowId, updatedRecord);
+  nullifiers.insert(nullifier, true);
+  return token;
+}
+
+export circuit initiateDispute(id: Bytes<32>, reasonHash: Bytes<32>): [] {
+  const escrowId = disclose(id);
+  assert(escrows.member(escrowId), "Escrow not found");
+  const record = escrows.lookup(escrowId);
+  assert(record.status == EscrowStatus.active, "Escrow not active");
+
+  const pKey = privateKey();
+  const dKey = depositorKey(pKey);
+  const bKey = beneficiaryKey(pKey);
+  assert(disclose(dKey == record.depositor || bKey == record.beneficiary), "Not authorized to dispute");
+
+  const dHash = disclose(disputeHashOf(reasonHash));
+
+  const updatedRecord = EscrowRecord {
+    depositor: record.depositor,
+    beneficiary: record.beneficiary,
+    commitment: record.commitment,
+    status: EscrowStatus.disputed,
+    createdAt: record.createdAt,
+    deadline: record.deadline,
+    arbiter: record.arbiter,
+    minThreshold: record.minThreshold
+  };
+
+  escrows.insert(escrowId, updatedRecord);
+  disputes.insert(escrowId, dHash);
+}
+
+export circuit resolveDispute(id: Bytes<32>, recipient: Bytes<32>): Bytes<32> {
+  const escrowId = disclose(id);
+  const targetRecipient = disclose(recipient);
+  assert(escrows.member(escrowId), "Escrow not found");
+  const record = escrows.lookup(escrowId);
+  assert(record.status == EscrowStatus.disputed, "Escrow not disputed");
+  assert(targetRecipient == record.beneficiary || targetRecipient == record.depositor, "Invalid recipient");
+
+  const pKey = privateKey();
+  const aKey = arbiterKey(pKey);
+  assert(disclose(aKey == record.arbiter), "Only arbiter can resolve");
+
+  const terms = escrowTerms();
+  const salt = escrowSalt();
+  const computedCommit = escrowCommitment(terms, record.depositor, salt);
+  assert(disclose(computedCommit == record.commitment), "Commitment mismatch");
+
+  const nullifier = disclose(escrowNullifier(salt, escrowId));
+  assert(!nullifiers.member(nullifier), "Escrow already settled");
+
+  const token = disclose(releaseToken(record.commitment, targetRecipient));
+
+  const updatedRecord = EscrowRecord {
+    depositor: record.depositor,
+    beneficiary: record.beneficiary,
+    commitment: record.commitment,
+    status: EscrowStatus.resolved,
+    createdAt: record.createdAt,
+    deadline: record.deadline,
+    arbiter: record.arbiter,
+    minThreshold: record.minThreshold
+  };
+
+  escrows.insert(escrowId, updatedRecord);
+  nullifiers.insert(nullifier, true);
+  return token;
+}
+
+export circuit expireEscrow(id: Bytes<32>, currentTimestamp: Uint<32>): Bytes<32> {
+  const escrowId = disclose(id);
+  assert(escrows.member(escrowId), "Escrow not found");
+  const record = escrows.lookup(escrowId);
+  assert(record.status == EscrowStatus.active, "Escrow not active");
+
+  const now = disclose(currentTimestamp);
+  assert(now > record.deadline, "Escrow deadline has not yet passed");
+
+  const terms = escrowTerms();
+  const salt = escrowSalt();
+  const computedCommit = escrowCommitment(terms, record.depositor, salt);
+  assert(disclose(computedCommit == record.commitment), "Commitment mismatch");
+
+  const pKey = privateKey();
+  const dKey = depositorKey(pKey);
+  const aKey = arbiterKey(pKey);
+  assert(disclose(dKey == record.depositor || aKey == record.arbiter), "Not authorized to expire");
+
+  const nullifier = disclose(escrowNullifier(salt, escrowId));
+  assert(!nullifiers.member(nullifier), "Escrow already settled");
+
+  const token = disclose(releaseToken(record.commitment, record.depositor));
+
+  const updatedRecord = EscrowRecord {
+    depositor: record.depositor,
+    beneficiary: record.beneficiary,
+    commitment: record.commitment,
+    status: EscrowStatus.expired,
+    createdAt: record.createdAt,
+    deadline: record.deadline,
+    arbiter: record.arbiter,
+    minThreshold: record.minThreshold
+  };
+
+  escrows.insert(escrowId, updatedRecord);
+  nullifiers.insert(nullifier, true);
+  return token;
+}

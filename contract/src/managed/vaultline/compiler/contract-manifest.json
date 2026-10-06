@@ -1,0 +1,76 @@
+{
+  "manifest-version": "1",
+  "compiler-version": "0.35.0",
+  "compiler-commit": "debb05f9414b9d1e176741c2be289bb32233f0fc",
+  "language-version": "0.27.0",
+  "runtime-version": "0.20.0",
+  "compiler": {
+    "type": "directory",
+    "contract-info.json": {
+      "type": "file",
+      "size": 14178,
+      "hash": "a86fa78363c6b0ab5f6138274332fef6faf0721b2252a45e10376bfaf3a7bf20"
+    }
+  },
+  "contract": {
+    "type": "directory",
+    "index.d.ts": {
+      "type": "file",
+      "size": 10581,
+      "hash": "15a67dcc1a2f5ef19b9ae76f4fbd4e03a79c67eeac37c0724b883f5b30570934"
+    },
+    "index.js": {
+      "type": "file",
+      "size": 175466,
+      "hash": "c4e9228748d866d1f9f4b63bf9fb356e4f8e88cbb38a3fba275c4c4b72c1de6a"
+    },
+    "index.js.map": {
+      "type": "file",
+      "size": 8320,
+      "hash": "21154caac051b1f671f82f869e200dc97575c31bc76498b45b938bbc5b544eb9"
+    }
+  },
+  "zkir": {
+    "type": "directory",
+    "attestDeposit.zkir": {
+      "type": "file",
+      "size": 3444,
+      "hash": "e25870cbad52496881a6e3f81f6efc40b3e6e7aa719d27983e9bc2aa0f6bb28e"
+    },
+    "createEscrow.zkir": {
+      "type": "file",
+      "size": 10657,
+      "hash": "f2caeb4ca0dd0002443bab4a2f37499f692637de287ced3073deff7dad2bbae1"
+    },
+    "expireEscrow.zkir": {
+      "type": "file",
+      "size": 11927,
+      "hash": "08a4767b3ef163961c031e1c29c86b481c70ba1c64af8ea93304839a2d5f31a4"
+    },
+    "initiateDispute.zkir": {
+      "type": "file",
+      "size": 8694,
+      "hash": "4002a00267dd84e50f6f303235ad6ef0be54c8cb73720ccfbc6abf0977a3bb92"
+    },
+    "registerCustodian.zkir": {
+      "type": "file",
+      "size": 2887,
+      "hash": "783d1f25223f2999d11f1975e9fca16e298a3e808e4b92e0d6bfbdc33ac194de"
+    },
+    "releaseEscrow.zkir": {
+      "type": "file",
+      "size": 11782,
+      "hash": "ad2e0484395dfe0f60bad1fcb26fa7d9bf756d70e6217c84e3b00ab1e43d0b2f"
+    },
+    "resolveDispute.zkir": {
+      "type": "file",
+      "size": 11822,
+      "hash": "7c08d672aa835f378ca43d834d44ce24fabcb8b43c01a1f6dad5a7191d690396"
+    },
+    "verifyEscrow.zkir": {
+      "type": "file",
+      "size": 4056,
+      "hash": "21899b1ee3fa6f9f97e5cc99a4f8ff5400415c39bf68c13853ddc28124f024e6"
+    }
+  }
+}

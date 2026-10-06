@@ -1,0 +1,31 @@
+{
+  "description": "Zurich private bullion & custody clearinghouse protocol on Midnight with zero-knowledge threshold escrow attestations.",
+  "name": "vaultline",
+  "version": "1.0.0",
+  "private": true,
+  "keywords": [
+    "midnight-network",
+    "compact-contracts",
+    "zero-knowledge-escrow",
+    "bullion-clearinghouse",
+    "range-attestation"
+  ],
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "0.20.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --target es2022 --module esnext --moduleResolution bundler --skipLibCheck --lib es2022,dom,dom.iterable web/src/main.ts",
+    "test": "vitest run tests/contract/vaultline.test.ts tests/domain/escrow.test.ts tests/domain/threshold.test.ts",
+    "demo": "tsx scripts/demo.ts",
+    "dev": "vite web",
+    "build:web": "vite build web",
+    "build": "vite build web"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "vite-plugin-wasm": "^3.6.0",
+    "vitest": "^1.0.0",
+    "typescript": "^5.0.0",
+    "tsx": "^4.19.0"
+  }
+}
