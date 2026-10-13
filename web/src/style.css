@@ -1,0 +1,957 @@
+/* ==========================================================================
+   VAULTLINE // ZURICH PRIVATE BULLION & CUSTODY CLEARINGHOUSE DESIGN SYSTEM
+   Palette: Gunmetal Obsidian (#0b0e11), Brushed Steel (#12171c),
+            Bullion Champagne Gold (#d4af37), Verification Teal (#2dd4bf),
+            Breach Crimson (#ef4444)
+   ========================================================================== */
+
+:root {
+  --zch-gunmetal-ground: #0b0e11;
+  --zch-steel-plate: #12171c;
+  --zch-titanium-recess: #0d1216;
+  --zch-titanium-raised: #171e25;
+  --zch-seam-line: #232c36;
+  --zch-seam-bright: #344150;
+  --zch-bullion-gold: #d4af37;
+  --zch-bullion-deep: #a58420;
+  --zch-bullion-tint: rgba(212, 175, 55, 0.12);
+  --zch-verify-teal: #2dd4bf;
+  --zch-verify-tint: rgba(45, 212, 191, 0.12);
+  --zch-breach-red: #ef4444;
+  --zch-breach-tint: rgba(239, 68, 68, 0.14);
+  --zch-ink-high: #f1f5f9;
+  --zch-ink-mid: #94a3b8;
+  --zch-ink-low: #64748b;
+  --zch-font-arch: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --zch-font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --zch-font-digest: 'Fira Code', monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body.zch-console-body {
+  background-color: var(--zch-gunmetal-ground);
+  background-image:
+    linear-gradient(180deg, rgba(212, 175, 55, 0.04) 0%, transparent 260px),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.012) 0px,
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px,
+      transparent 48px
+    );
+  color: var(--zch-ink-high);
+  font-family: var(--zch-font-ui);
+  line-height: 1.48;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Split-Screen Command Console Layout */
+.zch-split-frame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  min-height: 100vh;
+  align-items: start;
+}
+
+.zch-workspace-column {
+  padding: 1.5rem 1.75rem 2.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+/* Fixed Right-Hand Custody Rail (360px wide) */
+.zch-custody-rail {
+  width: 360px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background-color: var(--zch-steel-plate);
+  border-left: 1px solid var(--zch-seam-line);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+@media (max-width: 1180px) {
+  .zch-split-frame {
+    grid-template-columns: 1fr;
+  }
+
+  .zch-custody-rail {
+    width: 100%;
+    position: static;
+    height: auto;
+    border-left: none;
+    border-top: 1px solid var(--zch-seam-line);
+  }
+}
+
+/* Top Vault Lock Status Bar & Range-Threshold Visualizer */
+.zch-vault-lock-banner {
+  background-color: var(--zch-steel-plate);
+  border: 1px solid var(--zch-seam-line);
+  border-top: 2px solid var(--zch-bullion-gold);
+  border-radius: 6px;
+  padding: 1.35rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.48);
+}
+
+.zch-masthead-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--zch-seam-line);
+  padding-bottom: 1rem;
+}
+
+.zch-serial-stamp {
+  display: inline-block;
+  font-family: var(--zch-font-digest);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--zch-bullion-gold);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.zch-facility-heading {
+  font-family: var(--zch-font-arch);
+  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--zch-ink-high);
+}
+
+.zch-facility-sub {
+  font-size: 0.84rem;
+  color: var(--zch-ink-mid);
+  margin-top: 0.2rem;
+}
+
+.zch-lock-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.zch-bolt-readout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  background-color: var(--zch-titanium-recess);
+  border: 1px solid var(--zch-bullion-gold);
+  border-radius: 4px;
+  font-family: var(--zch-font-digest);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--zch-bullion-gold);
+}
+
+.zch-bolt-readout[data-state="verified"] {
+  border-color: var(--zch-verify-teal);
+  color: var(--zch-verify-teal);
+}
+
+.zch-bolt-readout[data-state="breach"] {
+  border-color: var(--zch-breach-red);
+  color: var(--zch-breach-red);
+}
+
+.zch-bolt-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.zch-acoustics-switch {
+  font-family: var(--zch-font-digest);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.45rem 0.8rem;
+  border-radius: 4px;
+  border: 1px solid var(--zch-seam-bright);
+  background-color: var(--zch-titanium-raised);
+  color: var(--zch-ink-high);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.zch-acoustics-switch:hover {
+  border-color: var(--zch-bullion-gold);
+  color: var(--zch-bullion-gold);
+}
+
+/* Vault Door Mechanism SVG + Range-Threshold Visualizer Grid */
+.zch-visualizer-deck {
+  display: grid;
+  grid-template-columns: 185px minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (max-width: 760px) {
+  .zch-visualizer-deck {
+    grid-template-columns: 1fr;
+  }
+}
+
+.zch-door-diagram-frame {
+  background-color: var(--zch-titanium-recess);
+  border: 1px solid var(--zch-seam-line);
+  border-radius: 6px;
+  padding: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  contain: layout paint;
+}
+
+.zch-vault-door-svg {
+  width: 164px;
+  height: 164px;
+  display: block;
+}
+
+.zch-svg-tumbler {
+  transform-origin: 110px 110px;
+  will-change: transform;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.zch-svg-bolts {
+  transform-origin: 110px 110px;
+  will-change: transform;
+  transition: transform 0.4s ease;
+}
+
+.zch-vault-door-svg.is-attested .zch-svg-tumbler {
+  transform: rotate(45deg);
+}
+
+.zch-vault-door-svg.is-released .zch-svg-tumbler {
+  transform: rotate(90deg);
+}
+
+.zch-vault-door-svg.is-breach .zch-svg-tumbler {
+  transform: rotate(-25deg);
+}
+
+/* Solvency Gauge Panel */
+.zch-solvency-gauge-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.zch-gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.zch-blueprint-tag {
+  font-family: var(--zch-font-digest);
+  font-size: 0.68rem;
+  color: var(--zch-ink-low);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.zch-gauge-title {
+  font-family: var(--zch-font-arch);
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--zch-ink-high);
+}
+
+.zch-solvency-verdict {
+  font-family: var(--zch-font-digest);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.28rem 0.65rem;
+  border-radius: 3px;
+  border: 1px solid var(--zch-verify-teal);
+  background-color: var(--zch-verify-tint);
+  color: var(--zch-verify-teal);
+}
+
+.zch-solvency-verdict.is-breach {
+  border-color: var(--zch-breach-red);
+  background-color: var(--zch-breach-tint);
+  color: var(--zch-breach-red);
+}
+
+.zch-gauge-note {
+  font-size: 0.8rem;
+  color: var(--zch-ink-mid);
+}
+
+.zch-scale-markers {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--zch-font-digest);
+  font-size: 0.72rem;
+  color: var(--zch-ink-low);
+}
+
+.zch-floor-callout {
+  color: var(--zch-bullion-gold);
+  font-weight: 600;
+}
+
+.zch-horizon-bar-outer {
+  position: relative;
+  height: 32px;
+  background-color: #070a0d;
+  border: 1px solid var(--zch-seam-bright);
+  border-radius: 4px;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.zch-horizon-deficit-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 25%;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(239, 68, 68, 0.1) 6px,
+    rgba(239, 68, 68, 0.18) 6px,
+    rgba(239, 68, 68, 0.18) 12px
+  );
+  display: flex;
+  align-items: center;
+  padding-left: 0.5rem;
+  overflow: hidden;
+  transition: width 0.25s ease;
+}
+
+.zch-horizon-satisfied-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 25%;
+  right: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(45, 212, 191, 0.12),
+    rgba(45, 212, 191, 0.12) 8px,
+    rgba(212, 175, 55, 0.16) 8px,
+    rgba(212, 175, 55, 0.16) 16px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.65rem;
+  overflow: hidden;
+  transition: left 0.25s ease;
+}
+
+.zch-horizon-floor-pin {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 25%;
+  width: 3px;
+  background-color: var(--zch-bullion-gold);
+  box-shadow: 0 0 10px var(--zch-bullion-gold);
+  transition: left 0.25s ease;
+}
+
+.zch-zone-caption {
+  font-family: var(--zch-font-digest);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  color: var(--zch-ink-high);
+  white-space: nowrap;
+}
+
+/* 4-Stage Conduit Stepper */
+.zch-conduit-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  background-color: var(--zch-titanium-recess);
+  border: 1px solid var(--zch-seam-line);
+  border-radius: 4px;
+  padding: 0.55rem 0.85rem;
+  margin-top: 0.15rem;
+}
+
+.zch-conduit-node {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--zch-font-digest);
+  font-size: 0.68rem;
+  color: var(--zch-ink-low);
+}
+
+.zch-node-index {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid var(--zch-seam-bright);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  background-color: var(--zch-steel-plate);
+}
+
+.zch-conduit-node.is-current {
+  color: var(--zch-bullion-gold);
+}
+
+.zch-conduit-node.is-current .zch-node-index {
+  border-color: var(--zch-bullion-gold);
+  background-color: var(--zch-bullion-tint);
+  color: var(--zch-bullion-gold);
+}
+
+.zch-conduit-node.is-done {
+  color: var(--zch-verify-teal);
+}
+
+.zch-conduit-node.is-done .zch-node-index {
+  border-color: var(--zch-verify-teal);
+  background-color: var(--zch-verify-tint);
+  color: var(--zch-verify-teal);
+}
+
+.zch-conduit-wire {
+  flex: 1;
+  height: 1px;
+  background-color: var(--zch-seam-line);
+}
+
+/* 2x2 Architectural Blueprint Grid for the 4 Custody Stages */
+.zch-blueprint-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 920px) {
+  .zch-blueprint-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.zch-quadrant-plate {
+  background-color: var(--zch-steel-plate);
+  border: 1px solid var(--zch-seam-line);
+  border-radius: 6px;
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+}
+
+.zch-quadrant-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--zch-seam-line);
+  padding-bottom: 0.75rem;
+}
+
+.zch-quadrant-num {
+  display: block;
+  font-family: var(--zch-font-digest);
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  color: var(--zch-bullion-gold);
+  text-transform: uppercase;
+}
+
+.zch-quadrant-heading {
+  font-family: var(--zch-font-arch);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--zch-ink-high);
+  margin-top: 0.15rem;
+}
+
+.zch-circuit-chip {
+  font-family: var(--zch-font-digest);
+  font-size: 0.66rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 3px;
+  background-color: var(--zch-titanium-recess);
+  border: 1px solid var(--zch-seam-bright);
+  color: var(--zch-bullion-gold);
+  white-space: nowrap;
+}
+
+.zch-circuit-chip.zch-chip-teal {
+  color: var(--zch-verify-teal);
+  border-color: rgba(45, 212, 191, 0.4);
+}
+
+.zch-quadrant-summary {
+  font-size: 0.81rem;
+  color: var(--zch-ink-mid);
+}
+
+/* Controls & Inputs */
+.zch-field-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 520px) {
+  .zch-field-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+.zch-field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.zch-field-caption {
+  font-family: var(--zch-font-digest);
+  font-size: 0.68rem;
+  color: var(--zch-ink-low);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.zch-control-input,
+.zch-control-select {
+  background-color: var(--zch-titanium-recess);
+  border: 1px solid var(--zch-seam-bright);
+  border-radius: 4px;
+  padding: 0.55rem 0.75rem;
+  color: var(--zch-ink-high);
+  font-family: var(--zch-font-digest);
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.zch-control-input:focus,
+.zch-control-select:focus {
+  border-color: var(--zch-bullion-gold);
+}
+
+.zch-button-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.zch-btn-gold {
+  flex: 1;
+  background: linear-gradient(135deg, var(--zch-bullion-gold), var(--zch-bullion-deep));
+  color: #090c0f;
+  font-family: var(--zch-font-arch);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.68rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.14s ease, opacity 0.14s ease;
+}
+
+.zch-btn-gold:hover {
+  transform: translate3d(0, -1px, 0);
+}
+
+.zch-btn-gold:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.zch-btn-titanium {
+  background-color: var(--zch-titanium-raised);
+  border: 1px solid var(--zch-seam-bright);
+  color: var(--zch-ink-high);
+  font-family: var(--zch-font-digest);
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 0.62rem 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.zch-btn-titanium:hover {
+  border-color: var(--zch-bullion-gold);
+  color: var(--zch-bullion-gold);
+}
+
+.zch-btn-breach {
+  background-color: var(--zch-breach-tint);
+  border: 1px solid var(--zch-breach-red);
+  color: var(--zch-breach-red);
+  font-family: var(--zch-font-digest);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.62rem 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.zch-btn-breach:hover {
+  background-color: rgba(239, 68, 68, 0.22);
+}
+
+.zch-btn-full {
+  width: 100%;
+}
+
+/* Cryptographic Digests & Output Boxes */
+.zch-digest-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.zch-digest-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+}
+
+.zch-digest-label {
+  font-family: var(--zch-font-digest);
+  font-size: 0.65rem;
+  color: var(--zch-ink-low);
+  text-transform: uppercase;
+}
+
+.zch-digest-code {
+  background-color: var(--zch-titanium-recess);
+  border: 1px solid var(--zch-seam-line);
+  border-radius: 4px;
+  padding: 0.48rem 0.68rem;
+  font-family: var(--zch-font-digest);
+  font-size: 0.73rem;
+  color: var(--zch-ink-high);
+  word-break: break-all;
+}
+
+/* ZKIR Monitor */
+.zch-zkir-monitor {
+  background-color: #070a0d;
+  border: 1px solid var(--zch-seam-line);
+  border-radius: 4px;
+  padding: 0.7rem;
+  font-family: var(--zch-font-digest);
+  font-size: 0.72rem;
+  color: var(--zch-ink-mid);
+  min-height: 132px;
+  max-height: 175px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: auto;
+}
+
+.zch-zkir-entry.is-pass {
+  color: var(--zch-verify-teal);
+}
+
+.zch-zkir-entry.is-circuit {
+  color: var(--zch-bullion-gold);
+}
+
+.zch-zkir-entry.is-fail {
+  color: var(--zch-breach-red);
+}
+
+/* Settlement Certificate Plate */
+.zch-certificate-plate {
+  background-color: var(--zch-titanium-recess);
+  border: 1px solid rgba(212, 175, 55, 0.38);
+  border-radius: 5px;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: auto;
+}
+
+.zch-certificate-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding-bottom: 0.45rem;
+}
+
+.zch-certificate-heading {
+  font-family: var(--zch-font-digest);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--zch-bullion-gold);
+  letter-spacing: 0.05em;
+}
+
+.zch-btn-mini {
+  background-color: var(--zch-steel-plate);
+  border: 1px solid var(--zch-seam-bright);
+  color: var(--zch-ink-high);
+  font-family: var(--zch-font-digest);
+  font-size: 0.65rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.zch-btn-mini:hover {
+  border-color: var(--zch-bullion-gold);
+  color: var(--zch-bullion-gold);
+}
+
+.zch-certificate-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.zch-span-full {
+  grid-column: 1 / -1;
+}
+
+.zch-meta-key {
+  display: block;
+  font-family: var(--zch-font-digest);
+  font-size: 0.62rem;
+  color: var(--zch-ink-low);
+}
+
+.zch-meta-val,
+.zch-meta-code {
+  font-family: var(--zch-font-digest);
+  font-size: 0.72rem;
+  color: var(--zch-ink-high);
+  word-break: break-all;
+}
+
+.zch-text-teal {
+  color: var(--zch-verify-teal);
+}
+
+/* Right-Hand Custody Rail Modules */
+.zch-rail-section {
+  background-color: var(--zch-titanium-recess);
+  border: 1px solid var(--zch-seam-line);
+  border-radius: 5px;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.zch-rail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--zch-seam-line);
+  padding-bottom: 0.45rem;
+}
+
+.zch-rail-title {
+  font-family: var(--zch-font-arch);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--zch-bullion-gold);
+}
+
+.zch-rail-tag {
+  font-family: var(--zch-font-digest);
+  font-size: 0.64rem;
+  color: var(--zch-ink-low);
+}
+
+.zch-preset-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.zch-preset-trigger {
+  text-align: left;
+  background-color: var(--zch-steel-plate);
+  border: 1px solid var(--zch-seam-line);
+  border-radius: 4px;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.zch-preset-trigger:hover,
+.zch-preset-trigger.is-selected {
+  border-color: var(--zch-bullion-gold);
+  background-color: var(--zch-bullion-tint);
+}
+
+.zch-preset-name {
+  font-family: var(--zch-font-arch);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--zch-ink-high);
+}
+
+.zch-preset-spec {
+  font-family: var(--zch-font-digest);
+  font-size: 0.68rem;
+  color: var(--zch-ink-mid);
+}
+
+/* Ledger State Inspector KV List */
+.zch-leak-seal {
+  font-family: var(--zch-font-digest);
+  font-size: 0.64rem;
+  font-weight: 600;
+  padding: 0.18rem 0.45rem;
+  border-radius: 3px;
+  border: 1px solid var(--zch-verify-teal);
+  background-color: var(--zch-verify-tint);
+  color: var(--zch-verify-teal);
+}
+
+.zch-leak-seal.is-breach {
+  border-color: var(--zch-breach-red);
+  background-color: var(--zch-breach-tint);
+  color: var(--zch-breach-red);
+}
+
+.zch-ledger-kv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.zch-kv-pair {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--zch-font-digest);
+  font-size: 0.72rem;
+  padding: 0.28rem 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.zch-kv-pair dt {
+  color: var(--zch-ink-mid);
+}
+
+.zch-kv-pair dd {
+  color: var(--zch-ink-high);
+  font-weight: 600;
+}
+
+/* Nullifier Registry List */
+.zch-nullifier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 110px;
+  overflow-y: auto;
+  font-family: var(--zch-font-digest);
+  font-size: 0.68rem;
+}
+
+.zch-nullifier-item {
+  background-color: var(--zch-steel-plate);
+  border: 1px solid var(--zch-seam-line);
+  border-left: 2px solid var(--zch-verify-teal);
+  border-radius: 3px;
+  padding: 0.32rem 0.5rem;
+  color: var(--zch-ink-high);
+  word-break: break-all;
+}
+
+.zch-nullifier-empty {
+  color: var(--zch-ink-low);
+  font-style: italic;
+}
+
+/* In-Browser Compact Contract Runner */
+.zch-rail-runner {
+  flex: 1;
+}
+
+.zch-runner-state {
+  font-family: var(--zch-font-digest);
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.18rem 0.48rem;
+  border-radius: 3px;
+  background-color: var(--zch-steel-plate);
+  border: 1px solid var(--zch-bullion-gold);
+  color: var(--zch-bullion-gold);
+}
+
+.zch-runner-blurb {
+  font-size: 0.74rem;
+  color: var(--zch-ink-mid);
+}
+
+.zch-runner-blurb code {
+  font-family: var(--zch-font-digest);
+  color: var(--zch-bullion-gold);
+}
+
+.zch-runner-output {
+  background-color: #06080b;
+  border: 1px solid var(--zch-seam-line);
+  border-radius: 4px;
+  padding: 0.65rem;
+  font-family: var(--zch-font-digest);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--zch-ink-high);
+  max-height: 290px;
+  overflow: auto;
+  white-space: pre-wrap;
+  contain: layout paint;
+}
