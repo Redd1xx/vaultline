@@ -1,0 +1,59 @@
+name: Clearinghouse Verification & Pages
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  clearinghouse-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install and compile Compact 0.35.0 circuits
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          compact update 0.35.0
+          compact compile --version
+          compact compile contract/src/vaultline.compact /tmp/vaultline-zk
+          test -d /tmp/vaultline-zk/keys
+          compact compile --skip-zk contract/src/vaultline.compact /tmp/vaultline-bindings
+          diff -r -x '*.map' /tmp/vaultline-bindings/contract contract/src/managed/vaultline/contract
+
+      - name: Run typecheck, tests, CLI demo, and production web bundle
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
+          npm run demo
+          npm run build
+
+  deploy-pages:
+    needs: clearinghouse-suite
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: publish
+        uses: actions/deploy-pages@v4

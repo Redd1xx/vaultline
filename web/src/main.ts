@@ -157,19 +157,19 @@ function setVaultDoorMechanism(state: 'locked' | 'attested' | 'released' | 'brea
   if (vaultBoltReadout && vaultBoltLabel && svgDoorCode) {
     if (state === 'locked') {
       vaultBoltReadout.dataset.state = 'locked';
-      vaultBoltLabel.textContent = 'BOLTS ENGAGED // SHIELDED';
+      vaultBoltLabel.textContent = 'LOCKED';
       svgDoorCode.textContent = 'SEALED';
     } else if (state === 'attested') {
       vaultBoltReadout.dataset.state = 'verified';
-      vaultBoltLabel.textContent = 'ZK SOLVENCY ATTESTED';
+      vaultBoltLabel.textContent = 'VERIFIED';
       svgDoorCode.textContent = 'ATTESTED';
     } else if (state === 'released') {
       vaultBoltReadout.dataset.state = 'verified';
-      vaultBoltLabel.textContent = 'SETTLEMENT CLEARED';
+      vaultBoltLabel.textContent = 'SETTLED';
       svgDoorCode.textContent = 'CLEARED';
     } else {
       vaultBoltReadout.dataset.state = 'breach';
-      vaultBoltLabel.textContent = 'SOLVENCY / DISPUTE ALERT';
+      vaultBoltLabel.textContent = 'ALERT';
       svgDoorCode.textContent = 'ALERT';
     }
   }
@@ -178,7 +178,7 @@ function setVaultDoorMechanism(state: 'locked' | 'attested' | 'released' | 'brea
 function syncHorizonVisualizer(principalUsd: number, floorUsd: number): void {
   const clampedPct = Math.min(Math.max((floorUsd / 100000) * 100, 12), 86);
   if (vizFloorMarker) {
-    vizFloorMarker.textContent = `PUBLIC FLOOR: $${floorUsd.toLocaleString()} USD`;
+    vizFloorMarker.textContent = `FLOOR: $${floorUsd.toLocaleString()}`;
   }
   if (vizDeficitZone) {
     vizDeficitZone.style.width = `${clampedPct}%`;
@@ -193,10 +193,10 @@ function syncHorizonVisualizer(principalUsd: number, floorUsd: number): void {
   const satisfies = principalUsd >= floorUsd;
   if (solvencyVerdictTag) {
     if (satisfies) {
-      solvencyVerdictTag.textContent = 'SOLVENCY CORRIDOR SATISFIED (ZK)';
+      solvencyVerdictTag.textContent = 'VERIFIED';
       solvencyVerdictTag.classList.remove('is-breach');
     } else {
-      solvencyVerdictTag.textContent = 'UNDER-COLLATERALIZED DEFICIT';
+      solvencyVerdictTag.textContent = 'BELOW FLOOR';
       solvencyVerdictTag.classList.add('is-breach');
     }
   }
@@ -258,9 +258,9 @@ async function lockCurrentTranche(withCustodianAttestation = false): Promise<voi
   if (outTrancheId) outTrancheId.textContent = `0x${trancheIdHex}`;
   if (outCommitmentHash) outCommitmentHash.textContent = `0x${entry.commitmentHex}`;
   if (certTrancheRef) certTrancheRef.textContent = `0x${trancheIdHex.slice(0, 28)}...`;
-  if (certStatusText) certStatusText.textContent = 'LOCKED IN CUSTODY';
-  if (certNullifierRoot) certNullifierRoot.textContent = 'Not yet consumed';
-  if (outReleaseToken) outReleaseToken.textContent = 'Awaiting settlement authorization...';
+  if (certStatusText) certStatusText.textContent = 'LOCKED';
+  if (certNullifierRoot) certNullifierRoot.textContent = 'Unspent';
+  if (outReleaseToken) outReleaseToken.textContent = 'Pending';
 
   syncHorizonVisualizer(rawPrincipal, rawFloor);
   setConduitProgress(2);
@@ -279,12 +279,12 @@ function refreshTrancheSelectors(): void {
   clearingStore.tranches.forEach((tranche, id) => {
     const optVerify = document.createElement('option');
     optVerify.value = id;
-    optVerify.textContent = `0x${id.slice(0, 10)}... // Floor $${tranche.publicFloorUsd.toLocaleString()} // [${tranche.phase}]`;
+    optVerify.textContent = `0x${id.slice(0, 10)}... ($${tranche.publicFloorUsd.toLocaleString()} / ${tranche.phase})`;
     selTrancheVerify.appendChild(optVerify);
 
     const optDispute = document.createElement('option');
     optDispute.value = id;
-    optDispute.textContent = `0x${id.slice(0, 10)}... // [${tranche.phase}]`;
+    optDispute.textContent = `0x${id.slice(0, 10)}... (${tranche.phase})`;
     selTrancheDispute.appendChild(optDispute);
   });
 
@@ -333,13 +333,13 @@ function refreshRailInspector(): void {
     if (clearingStore.spentNullifiers.size === 0) {
       const empty = document.createElement('div');
       empty.className = 'zch-nullifier-empty';
-      empty.textContent = 'No settlement nullifiers burned yet.';
+      empty.textContent = 'None';
       railNullifierList.appendChild(empty);
     } else {
       clearingStore.spentNullifiers.forEach((trancheId, nullifierHex) => {
         const item = document.createElement('div');
         item.className = 'zch-nullifier-item';
-        item.textContent = `NUL 0x${nullifierHex.slice(0, 16)}... -> Tranche 0x${trancheId.slice(0, 8)}...`;
+        item.textContent = `0x${nullifierHex.slice(0, 16)}...`;
         railNullifierList.appendChild(item);
       });
     }
@@ -349,7 +349,7 @@ function refreshRailInspector(): void {
   if (railLeakSeal) {
     const report = clearingStore.auditZeroKnowledgeBoundary(localVault);
     if (report.clean) {
-      railLeakSeal.textContent = '0 BYTES LEAKED';
+      railLeakSeal.textContent = '0 LEAKED';
       railLeakSeal.classList.remove('is-breach');
     } else {
       railLeakSeal.textContent = `LEAK: ${report.exposedArtifacts.join(', ')}`;
@@ -381,7 +381,7 @@ function highlightPresetButton(selected: HTMLButtonElement | null): void {
 // Acoustics Switch
 btnAcousticsToggle?.addEventListener('click', () => {
   const active = acoustics.toggleMute();
-  btnAcousticsToggle.textContent = `ACOUSTICS: ${active ? 'ENGAGED' : 'MUTED'}`;
+  btnAcousticsToggle.textContent = `SOUND: ${active ? 'ON' : 'OFF'}`;
   if (active) acoustics.relayTick();
 });
 
@@ -515,7 +515,7 @@ btnSettleTranche?.addEventListener('click', async () => {
     const releaseCertHex = `0x${bytesToHex(releaseCertBytes)}`;
 
     if (outReleaseToken) outReleaseToken.textContent = releaseCertHex;
-    if (certStatusText) certStatusText.textContent = 'SETTLED // NULLIFIER BURNED';
+    if (certStatusText) certStatusText.textContent = 'SETTLED';
     if (certTrancheRef) certTrancheRef.textContent = `0x${trancheId}`;
     if (certNullifierRoot) certNullifierRoot.textContent = `0x${nullifierHex}`;
 
@@ -552,9 +552,9 @@ btnExportReceipt?.addEventListener('click', () => {
   };
   navigator.clipboard?.writeText(JSON.stringify(payload, null, 2)).then(() => {
     if (!btnExportReceipt) return;
-    btnExportReceipt.textContent = 'Dossier Copied';
+    btnExportReceipt.textContent = 'Copied';
     setTimeout(() => {
-      btnExportReceipt.textContent = 'Copy JSON Dossier';
+      btnExportReceipt.textContent = 'Copy JSON';
     }, 1800);
   });
 });

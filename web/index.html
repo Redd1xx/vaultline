@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VAULTLINE // Zurich Private Bullion &amp; Custody Clearinghouse</title>
+  <title>Vaultline — Private Threshold Escrow</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -13,36 +13,36 @@
 
   <div class="zch-split-frame">
 
-    <!-- LEFT / CENTER WORKSPACE: VAULT STATUS BAR & 2x2 ARCHITECTURAL BLUEPRINT GRID -->
+    <!-- LEFT / CENTER WORKSPACE -->
     <div class="zch-workspace-column">
 
-      <!-- Top Bar: Clearinghouse Masthead + Vault Lock Status & Range-Threshold Visualizer -->
-      <aside class="zch-vault-lock-banner" aria-label="Vault Lock Status and Range Visualizer">
+      <!-- Top Bar: Vault Status & Range-Threshold Visualizer -->
+      <aside class="zch-vault-lock-banner" aria-label="Vault Status and Range Visualizer">
 
         <div class="zch-masthead-row">
           <div class="zch-clearinghouse-id">
-            <span class="zch-serial-stamp">CH-ZH-8001 // PARADEPLATZ VAULT</span>
-            <h1 class="zch-facility-heading">VAULTLINE BULLION &amp; CUSTODY CLEARINGHOUSE</h1>
-            <p class="zch-facility-sub">Zero-Knowledge Solvency Thresholds, Certified Custodian Locks &amp; Nullifier Settlement on Midnight</p>
+            <span class="zch-serial-stamp">VAULTLINE // ESCROW</span>
+            <h1 class="zch-facility-heading">VAULTLINE CUSTODY</h1>
+            <p class="zch-facility-sub">Zero-Knowledge Threshold Escrow &amp; Nullifier Settlement</p>
           </div>
 
           <div class="zch-lock-controls">
             <div class="zch-bolt-readout" id="vaultBoltReadout" data-state="locked">
               <span class="zch-bolt-led"></span>
-              <span id="vaultBoltLabel">BOLTS ENGAGED // SHIELDED</span>
+              <span id="vaultBoltLabel">LOCKED</span>
             </div>
             <button type="button" class="zch-acoustics-switch" id="btnAcousticsToggle">
-              ACOUSTICS: ENGAGED
+              SOUND: ON
             </button>
           </div>
         </div>
 
-        <!-- Architectural Vault Door Mechanism SVG + Range-Threshold Solvency Bar -->
+        <!-- Vault Door Mechanism SVG + Range-Threshold Solvency Bar -->
         <div class="zch-visualizer-deck">
 
           <!-- SVG Vault Door Mechanism Diagram -->
           <div class="zch-door-diagram-frame">
-            <svg class="zch-vault-door-svg" id="vaultDoorSvg" viewBox="0 0 220 220" role="img" aria-label="Zurich Titanium Vault Door Mechanism">
+            <svg class="zch-vault-door-svg" id="vaultDoorSvg" viewBox="0 0 220 220" role="img" aria-label="Vault Door Mechanism">
               <defs>
                 <radialGradient id="titaniumPlateGrad" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stop-color="#1d252d" />
@@ -50,11 +50,9 @@
                   <stop offset="100%" stop-color="#0b0e11" />
                 </radialGradient>
               </defs>
-              <!-- Outer Steel Frame -->
               <circle cx="110" cy="110" r="102" fill="url(#titaniumPlateGrad)" stroke="#2a333d" stroke-width="2" />
               <circle cx="110" cy="110" r="92" fill="none" stroke="#d4af37" stroke-width="1" stroke-dasharray="4 6" opacity="0.55" />
 
-              <!-- 8 Radial Locking Bolts -->
               <g id="svgBoltGroup" class="zch-svg-bolts">
                 <line x1="110" y1="12" x2="110" y2="38" stroke="#d4af37" stroke-width="5" stroke-linecap="square" />
                 <line x1="110" y1="182" x2="110" y2="208" stroke="#d4af37" stroke-width="5" stroke-linecap="square" />
@@ -66,7 +64,6 @@
                 <line x1="179" y1="179" x2="161" y2="161" stroke="#2dd4bf" stroke-width="3.5" stroke-linecap="square" />
               </g>
 
-              <!-- Inner Rotating Tumbler Ring -->
               <g id="svgTumblerRing" class="zch-svg-tumbler">
                 <circle cx="110" cy="110" r="66" fill="#0e1318" stroke="#d4af37" stroke-width="2.5" />
                 <circle cx="110" cy="110" r="52" fill="none" stroke="#2dd4bf" stroke-width="1.2" stroke-dasharray="12 8" />
@@ -74,7 +71,6 @@
                 <line x1="58" y1="110" x2="162" y2="110" stroke="#2a3440" stroke-width="2" />
               </g>
 
-              <!-- Center Hub -->
               <circle cx="110" cy="110" r="24" fill="#12171c" stroke="#d4af37" stroke-width="2" />
               <text x="110" y="107" text-anchor="middle" fill="#d4af37" font-family="Outfit, sans-serif" font-size="9" font-weight="700" letter-spacing="1">ZK-LOCK</text>
               <text x="110" y="119" text-anchor="middle" fill="#2dd4bf" font-family="Fira Code, monospace" font-size="7.5" id="svgDoorCode">SEALED</text>
@@ -85,28 +81,24 @@
           <div class="zch-solvency-gauge-panel">
             <div class="zch-gauge-header">
               <div>
-                <span class="zch-blueprint-tag">ZERO-KNOWLEDGE SOLVENCY HORIZON // CIRCUIT: meetsThreshold</span>
-                <h2 class="zch-gauge-title">Blind Collateral Range-Threshold Visualizer</h2>
+                <span class="zch-blueprint-tag">meetsThreshold</span>
+                <h2 class="zch-gauge-title">Collateral Threshold</h2>
               </div>
-              <span class="zch-solvency-verdict" id="solvencyVerdictTag">SOLVENCY VERIFIED IN ZK</span>
+              <span class="zch-solvency-verdict" id="solvencyVerdictTag">VERIFIED</span>
             </div>
 
-            <p class="zch-gauge-note">
-              Public observers verify only that the locked bullion principal sits inside the satisfied corridor above the required minimum floor. The exact deposit coordinate remains strictly witness-isolated.
-            </p>
-
             <div class="zch-scale-markers">
-              <span>$0 USD</span>
-              <span class="zch-floor-callout" id="vizFloorMarker">PUBLIC FLOOR: $25,000</span>
-              <span>$100,000+ CEILING</span>
+              <span>$0</span>
+              <span class="zch-floor-callout" id="vizFloorMarker">FLOOR: $25,000</span>
+              <span>$100,000+</span>
             </div>
 
             <div class="zch-horizon-bar-outer">
               <div class="zch-horizon-deficit-zone" id="vizDeficitZone">
-                <span class="zch-zone-caption">UNDER-COLLATERALIZED REJECTION ZONE</span>
+                <span class="zch-zone-caption">BELOW FLOOR</span>
               </div>
               <div class="zch-horizon-satisfied-zone" id="vizSatisfiedZone">
-                <span class="zch-zone-caption">ZK SHIELDED SOLVENCY CORRIDOR (EXACT PRINCIPAL HIDDEN)</span>
+                <span class="zch-zone-caption">VALID RANGE (AMOUNT HIDDEN)</span>
               </div>
               <div class="zch-horizon-floor-pin" id="vizFloorPin"></div>
             </div>
@@ -114,22 +106,22 @@
             <div class="zch-conduit-stepper" id="custodyConduit">
               <div class="zch-conduit-node is-done" id="nodeStage1">
                 <span class="zch-node-index">I</span>
-                <span class="zch-node-name">CUSTODY LOCKED</span>
+                <span class="zch-node-name">LOCKED</span>
               </div>
               <div class="zch-conduit-wire"></div>
               <div class="zch-conduit-node is-current" id="nodeStage2">
                 <span class="zch-node-index">II</span>
-                <span class="zch-node-name">ZK ATTESTED</span>
+                <span class="zch-node-name">VERIFIED</span>
               </div>
               <div class="zch-conduit-wire"></div>
               <div class="zch-conduit-node" id="nodeStage3">
                 <span class="zch-node-index">III</span>
-                <span class="zch-node-name">NULLIFIER ISSUED</span>
+                <span class="zch-node-name">SETTLED</span>
               </div>
               <div class="zch-conduit-wire"></div>
               <div class="zch-conduit-node" id="nodeStage4">
                 <span class="zch-node-index">IV</span>
-                <span class="zch-node-name">FINALIZED</span>
+                <span class="zch-node-name">CLOSED</span>
               </div>
             </div>
           </div>
@@ -137,186 +129,170 @@
         </div>
       </aside>
 
-      <!-- 2x2 ARCHITECTURAL BLUEPRINT GRID FOR THE 4 CUSTODY STAGES -->
+      <!-- 2x2 GRID FOR THE 4 CUSTODY STAGES -->
       <div class="zch-blueprint-grid" role="region" aria-label="Four Stage Custody Architecture">
 
-        <!-- STAGE I: Custodian Registration & Deposit Lock -->
+        <!-- STAGE I: Deposit Lock -->
         <article class="zch-quadrant-plate" id="quadrantOne">
           <div class="zch-quadrant-top">
             <div>
-              <span class="zch-quadrant-num">STAGE I // CUSTODY INTAKE</span>
-              <h2 class="zch-quadrant-heading">Custodian Registration &amp; Deposit Lock</h2>
+              <span class="zch-quadrant-num">STAGE I</span>
+              <h2 class="zch-quadrant-heading">Deposit Lock</h2>
             </div>
-            <span class="zch-circuit-chip">createEscrow + attestDeposit</span>
+            <span class="zch-circuit-chip">createEscrow</span>
           </div>
-
-          <p class="zch-quadrant-summary">
-            Register certified vault custodians, bind the private bullion deposit with a 32-byte blinding salt, and publish only the hiding commitment and minimum floor.
-          </p>
 
           <div class="zch-field-pair">
             <label class="zch-field-block">
-              <span class="zch-field-caption">Shielded Principal Deposit (USD)</span>
+              <span class="zch-field-caption">Deposit ($)</span>
               <input type="number" class="zch-control-input" id="fieldPrincipalUsd" value="75000" min="1000" step="1000">
             </label>
             <label class="zch-field-block">
-              <span class="zch-field-caption">Public Minimum Threshold (USD)</span>
+              <span class="zch-field-caption">Min Floor ($)</span>
               <input type="number" class="zch-control-input" id="fieldFloorUsd" value="25000" min="500" step="500">
             </label>
           </div>
 
           <div class="zch-field-pair">
             <label class="zch-field-block">
-              <span class="zch-field-caption">Bullion Assay Denomination</span>
-              <input type="text" class="zch-control-input" id="fieldAssayUnit" value="ZURICH-BULLION-USDC (CODE 01)" readonly>
+              <span class="zch-field-caption">Asset</span>
+              <input type="text" class="zch-control-input" id="fieldAssayUnit" value="USDC (01)" readonly>
             </label>
             <label class="zch-field-block">
-              <span class="zch-field-caption">Timelock Expiration (Epoch Sec)</span>
+              <span class="zch-field-caption">Timelock (s)</span>
               <input type="number" class="zch-control-input" id="fieldTimelockSec" value="10000" min="60">
             </label>
           </div>
 
           <div class="zch-button-row">
             <button type="button" class="zch-btn-gold" id="btnLockBullion">
-              Engage Vault Bolts &amp; Commit Tranche
+              Lock Escrow
             </button>
             <button type="button" class="zch-btn-titanium" id="btnAttestCustodian">
-              Certify Custodian Deposit
+              Attest Custodian
             </button>
           </div>
 
           <div class="zch-digest-stack">
             <div class="zch-digest-row">
-              <span class="zch-digest-label">Active Tranche Identifier</span>
+              <span class="zch-digest-label">Escrow ID</span>
               <code class="zch-digest-code" id="outTrancheId">0x...</code>
             </div>
             <div class="zch-digest-row">
-              <span class="zch-digest-label">On-Chain Blinded Commitment</span>
+              <span class="zch-digest-label">Commitment</span>
               <code class="zch-digest-code" id="outCommitmentHash">0x...</code>
             </div>
           </div>
         </article>
 
-        <!-- STAGE II: Zero-Knowledge Threshold Attestation -->
+        <!-- STAGE II: Threshold Proof -->
         <article class="zch-quadrant-plate" id="quadrantTwo">
           <div class="zch-quadrant-top">
             <div>
-              <span class="zch-quadrant-num">STAGE II // SOLVENCY PROOF</span>
-              <h2 class="zch-quadrant-heading">Zero-Knowledge Threshold Attestation</h2>
+              <span class="zch-quadrant-num">STAGE II</span>
+              <h2 class="zch-quadrant-heading">Threshold Proof</h2>
             </div>
-            <span class="zch-circuit-chip zch-chip-teal">verifyEscrow + meetsThreshold</span>
+            <span class="zch-circuit-chip zch-chip-teal">verifyEscrow</span>
           </div>
 
-          <p class="zch-quadrant-summary">
-            Counterparties verify that the tranche is locked and satisfies the minimum collateral threshold without learning the depositor's actual reserve balance.
-          </p>
-
           <label class="zch-field-block">
-            <span class="zch-field-caption">Select Locked Bullion Tranche</span>
+            <span class="zch-field-caption">Active Escrow</span>
             <select class="zch-control-select" id="selTrancheVerify"></select>
           </label>
 
           <button type="button" class="zch-btn-gold" id="btnExecuteZkProof">
-            Execute Zero-Knowledge Solvency Proof (amount &gt;= threshold)
+            Verify Threshold
           </button>
 
           <div class="zch-zkir-monitor" id="zkirProofMonitor">
-            <div class="zch-zkir-entry">[ZKIR] Ready. Select a locked tranche and run threshold verification.</div>
+            <div class="zch-zkir-entry">[ZKIR] Ready.</div>
           </div>
         </article>
 
-        <!-- STAGE III: Settlement Release & Nullifier Certificate -->
+        <!-- STAGE III: Release & Settle -->
         <article class="zch-quadrant-plate" id="quadrantThree">
           <div class="zch-quadrant-top">
             <div>
-              <span class="zch-quadrant-num">STAGE III // CLEARING &amp; RELEASE</span>
-              <h2 class="zch-quadrant-heading">Settlement Release &amp; Nullifier Certificate</h2>
+              <span class="zch-quadrant-num">STAGE III</span>
+              <h2 class="zch-quadrant-heading">Release &amp; Settle</h2>
             </div>
-            <span class="zch-circuit-chip">releaseEscrow + escrowNullifier</span>
+            <span class="zch-circuit-chip">releaseEscrow</span>
           </div>
 
-          <p class="zch-quadrant-summary">
-            Upon delivery fulfillment, the beneficiary or arbiter releases the tranche, recording a caller-independent nullifier on-chain to prevent double-settlement.
-          </p>
-
           <button type="button" class="zch-btn-gold" id="btnSettleTranche">
-            Authorize Settlement Release &amp; Burn Nullifier
+            Release Escrow
           </button>
 
           <div class="zch-digest-row">
-            <span class="zch-digest-label">Beneficiary Release Receipt Token</span>
-            <code class="zch-digest-code" id="outReleaseToken">Awaiting settlement authorization...</code>
+            <span class="zch-digest-label">Release Token</span>
+            <code class="zch-digest-code" id="outReleaseToken">Pending</code>
           </div>
 
           <div class="zch-certificate-plate" id="clearingCertificateBox">
             <div class="zch-certificate-bar">
-              <span class="zch-certificate-heading">ZURICH CLEARINGHOUSE SETTLEMENT CERTIFICATE</span>
-              <button type="button" class="zch-btn-mini" id="btnExportReceipt">Copy JSON Dossier</button>
+              <span class="zch-certificate-heading">SETTLEMENT RECEIPT</span>
+              <button type="button" class="zch-btn-mini" id="btnExportReceipt">Copy JSON</button>
             </div>
             <div class="zch-certificate-meta">
               <div>
-                <span class="zch-meta-key">CLEARING STATUS</span>
-                <span class="zch-meta-val zch-text-teal" id="certStatusText">LOCKED IN CUSTODY</span>
+                <span class="zch-meta-key">STATUS</span>
+                <span class="zch-meta-val zch-text-teal" id="certStatusText">LOCKED</span>
               </div>
               <div>
-                <span class="zch-meta-key">REPLAY PROTECTION</span>
-                <span class="zch-meta-val">Nullifier Set Enforced</span>
+                <span class="zch-meta-key">NULLIFIER</span>
+                <span class="zch-meta-val">Enforced</span>
               </div>
               <div class="zch-span-full">
-                <span class="zch-meta-key">TRANCHE REFERENCE</span>
+                <span class="zch-meta-key">ESCROW ID</span>
                 <code class="zch-meta-code" id="certTrancheRef">0x...</code>
               </div>
               <div class="zch-span-full">
-                <span class="zch-meta-key">SETTLEMENT NULLIFIER ROOT</span>
-                <code class="zch-meta-code" id="certNullifierRoot">Not yet consumed</code>
+                <span class="zch-meta-key">NULLIFIER HASH</span>
+                <code class="zch-meta-code" id="certNullifierRoot">Unspent</code>
               </div>
             </div>
           </div>
         </article>
 
-        <!-- STAGE IV: Arbitrator Dispute & Timelock Resolution -->
+        <!-- STAGE IV: Dispute & Expiry -->
         <article class="zch-quadrant-plate" id="quadrantFour">
           <div class="zch-quadrant-top">
             <div>
-              <span class="zch-quadrant-num">STAGE IV // ARBITRATION &amp; TIMELOCK</span>
-              <h2 class="zch-quadrant-heading">Arbitrator Dispute &amp; Timelock Resolution</h2>
+              <span class="zch-quadrant-num">STAGE IV</span>
+              <h2 class="zch-quadrant-heading">Dispute &amp; Expiry</h2>
             </div>
-            <span class="zch-circuit-chip">initiateDispute + resolveDispute + expireEscrow</span>
+            <span class="zch-circuit-chip">resolveDispute</span>
           </div>
-
-          <p class="zch-quadrant-summary">
-            Either party may freeze a contested tranche with a domain-separated dispute hash for neutral arbitration, or the depositor may reclaim funds once the timelock expires.
-          </p>
 
           <div class="zch-field-pair">
             <label class="zch-field-block">
-              <span class="zch-field-caption">Tranche Under Review</span>
+              <span class="zch-field-caption">Escrow</span>
               <select class="zch-control-select" id="selTrancheDispute"></select>
             </label>
             <label class="zch-field-block">
-              <span class="zch-field-caption">Arbitrator Award Recipient</span>
+              <span class="zch-field-caption">Recipient</span>
               <select class="zch-control-select" id="selArbiterDestination">
-                <option value="beneficiary">Award to Beneficiary</option>
-                <option value="depositor">Refund to Depositor</option>
+                <option value="beneficiary">Beneficiary</option>
+                <option value="depositor">Depositor</option>
               </select>
             </label>
           </div>
 
           <div class="zch-button-row">
             <button type="button" class="zch-btn-breach" id="btnFreezeDispute">
-              Freeze Tranche (Dispute)
+              Dispute
             </button>
             <button type="button" class="zch-btn-gold" id="btnExecuteVerdict">
-              Execute Arbiter Award
+              Resolve
             </button>
             <button type="button" class="zch-btn-titanium" id="btnExpireTimelock">
-              Reclaim Expired Timelock
+              Expire
             </button>
           </div>
 
           <div class="zch-digest-row">
-            <span class="zch-digest-label">Arbitration / Timelock Audit Log</span>
-            <code class="zch-digest-code" id="outArbitrationStatus">No contested freezes active.</code>
+            <span class="zch-digest-label">Status</span>
+            <code class="zch-digest-code" id="outArbitrationStatus">None</code>
           </div>
         </article>
 
@@ -324,27 +300,27 @@
 
     </div>
 
-    <!-- FIXED RIGHT-HAND CUSTODY RAIL (360px wide) -->
+    <!-- RIGHT-HAND CUSTODY RAIL -->
     <aside class="zch-custody-rail" aria-label="Right-Hand Custody Rail">
 
-      <!-- Module 1: Tranche Scenario Presets -->
+      <!-- Module 1: Presets -->
       <div class="zch-rail-section">
         <div class="zch-rail-header">
-          <span class="zch-rail-title">BULLION TRANCHE PRESETS</span>
-          <span class="zch-rail-tag">3 SCENARIOS</span>
+          <span class="zch-rail-title">PRESETS</span>
+          <span class="zch-rail-tag">3 MODES</span>
         </div>
         <div class="zch-preset-stack">
           <button type="button" class="zch-preset-trigger is-selected" id="btnPresetPrime">
-            <span class="zch-preset-name">Prime Bullion Reserve</span>
-            <span class="zch-preset-spec">$75,000 Shielded vs $25,000 Floor</span>
+            <span class="zch-preset-name">Standard Reserve</span>
+            <span class="zch-preset-spec">$75k vs $25k Floor</span>
           </button>
           <button type="button" class="zch-preset-trigger" id="btnPresetParity">
-            <span class="zch-preset-name">Exact Solvency Parity</span>
-            <span class="zch-preset-spec">$30,000 Shielded vs $30,000 Floor</span>
+            <span class="zch-preset-name">Exact Boundary</span>
+            <span class="zch-preset-spec">$30k vs $30k Floor</span>
           </button>
           <button type="button" class="zch-preset-trigger" id="btnPresetDeficit">
-            <span class="zch-preset-name">Under-Collateralized Breach</span>
-            <span class="zch-preset-spec">$15,000 Shielded vs $25,000 Floor (Reject)</span>
+            <span class="zch-preset-name">Under Floor</span>
+            <span class="zch-preset-spec">$15k vs $25k Floor (Reject)</span>
           </button>
         </div>
       </div>
@@ -352,32 +328,32 @@
       <!-- Module 2: Live Ledger State Inspector -->
       <div class="zch-rail-section">
         <div class="zch-rail-header">
-          <span class="zch-rail-title">LEDGER STATE INSPECTOR</span>
-          <span class="zch-leak-seal" id="railLeakSeal">0 BYTES LEAKED</span>
+          <span class="zch-rail-title">LEDGER STATE</span>
+          <span class="zch-leak-seal" id="railLeakSeal">0 LEAKED</span>
         </div>
         <dl class="zch-ledger-kv-list">
           <div class="zch-kv-pair">
-            <dt>Arbiter Authority PK</dt>
+            <dt>Arbiter</dt>
             <dd id="inspArbiterKey">0x...</dd>
           </div>
           <div class="zch-kv-pair">
-            <dt>Depositor Identity PK</dt>
+            <dt>Depositor</dt>
             <dd id="inspDepositorKey">0x...</dd>
           </div>
           <div class="zch-kv-pair">
-            <dt>Certified Custodians</dt>
+            <dt>Custodians</dt>
             <dd id="inspCustodianCount">1</dd>
           </div>
           <div class="zch-kv-pair">
-            <dt>Locked Tranches</dt>
+            <dt>Active</dt>
             <dd id="inspActiveCount">1</dd>
           </div>
           <div class="zch-kv-pair">
-            <dt>Settled Certificates</dt>
+            <dt>Settled</dt>
             <dd id="inspSettledCount">0</dd>
           </div>
           <div class="zch-kv-pair">
-            <dt>Dispute Freeze Rate</dt>
+            <dt>Disputed</dt>
             <dd id="inspDisputeRatio">0.0%</dd>
           </div>
         </dl>
@@ -386,27 +362,24 @@
       <!-- Module 3: Nullifier Registry -->
       <div class="zch-rail-section">
         <div class="zch-rail-header">
-          <span class="zch-rail-title">NULLIFIER REGISTRY</span>
+          <span class="zch-rail-title">NULLIFIERS</span>
           <span class="zch-rail-tag" id="railNullifierCount">0 SPENT</span>
         </div>
         <div class="zch-nullifier-list" id="railNullifierList">
-          <div class="zch-nullifier-empty">No settlement nullifiers burned yet.</div>
+          <div class="zch-nullifier-empty">None</div>
         </div>
       </div>
 
       <!-- Module 4: Live In-Browser Compact Contract Runner -->
       <div class="zch-rail-section zch-rail-runner">
         <div class="zch-rail-header">
-          <span class="zch-rail-title">COMPACT WASM RUNNER</span>
-          <span class="zch-runner-state" id="contractRunnerStatus">STANDBY</span>
+          <span class="zch-rail-title">CONTRACT RUNNER</span>
+          <span class="zch-runner-state" id="contractRunnerStatus">IDLE</span>
         </div>
-        <p class="zch-runner-blurb">
-          Executes the compiled <code>vaultline.compact</code> circuits in-browser via <code>@midnight-ntwrk/compact-runtime</code> and WebAssembly.
-        </p>
         <button type="button" class="zch-btn-gold zch-btn-full" id="btnExecuteCompiledContract">
-          Run Full Compiled Contract Lifecycle
+          Run Contract
         </button>
-        <pre class="zch-runner-output" id="contractRunnerOutput">Click above to execute all 5 compiled Compact stages in this browser tab.</pre>
+        <pre class="zch-runner-output" id="contractRunnerOutput">Ready.</pre>
       </div>
 
     </aside>
